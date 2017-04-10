@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<antlib xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:unless="ant:unless">
+
+    <macrodef name="test">
+        <sequential>
+            <available property="testReports.directory.exists" value="true" file="${project.build.directory.tests-reports}" type="dir"/>
+            <mkdir dir="${project.build.directory.tests-reports}" unless:set="testReports.directory.exists"/>
+            <doBatchTest filesetDir="${project.testSource.directory}" includeName="**/*Test.java"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="doSingleTest">
+        <attribute name="class"/>
+        <sequential>
+            <doJunitTest fork="no">
+                <whatToTest>
+                    <test fork="yes"
+                          haltonerror="false"
+                          haltonfailure="false"
+                          name="@{class}"
+                          todir="${project.build.directory.tests-reports}"/>
+                </whatToTest>
+            </doJunitTest>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="doBatchTest">
+        <attribute name="filesetDir"/>
+        <attribute name="includeName"/>
+        <sequential>
+            <doJunitTest fork="no">
+                <whatToTest>
+                    <batchtest fork="yes"
+                               haltonerror="false"
+                               haltonfailure="false"
+                               todir="${project.build.directory.tests-reports}">
+                        <fileset dir="@{filesetDir}">
+                            <include name="@{includeName}"/>
+                        </fileset>
+                    </batchtest>
+                </whatToTest>
+            </doJunitTest>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="doJunitTest">
+        <attribute name="fork" default="no"/>
+        <element name="whatToTest" optional="no"/>
+        <sequential>
+            <junit
+                    printsummary="yes"
+                    haltonfailure="no"
+                    fork="@{fork}"
+                    showoutput="true"
+                    failureproperty="test.failed"
+                    errorproperty="test.failed">
+                <classpath location="${project.build.directory.src-generated}"/>
+                <classpath location="${project.build.directory.src}"/>
+                <classpath location="${project.build.directory.tests-generated}"/>
+                <classpath location="${project.build.directory.tests}"/>
+                <classpath refid="project.classpath.test"/>
+                <formatter type="xml"/>
+                <formatter type="plain"/>
+                <formatter type="brief" usefile="false"/>
+                <jvmarg value="-Demma.coverage.out.file=${project.build.directory.tests-reports}/metadata/coverage.emma"/>
+                <jvmarg value="-Demma.coverage.out.merge=true"/>
+                <whatToTest/>
+            </junit>
+        </sequential>
+    </macrodef>
+</antlib>

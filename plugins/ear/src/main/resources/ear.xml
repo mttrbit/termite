@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<antlib  xmlns:unless="ant:unless" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <macrodef name="package-prepare">
+        <sequential>
+            <mkdir dir="${project.build.directory}/${ivy.module}-${ivy.revision}"/>
+            <mkdir dir="${project.build.directory}/${ivy.module}-${ivy.revision}/APP-INF"/>
+            <mkdir dir="${project.build.directory}/${ivy.module}-${ivy.revision}/APP-INF/lib"/>
+            <mkdir dir="${project.build.directory}/META-INF"/>
+
+            <ivy:retrieve pattern="${project.build.directory}/${ivy.module}-${ivy.revision}/APP-INF/lib/[artifact].[ext]" conf="runtime" type="jar"/>
+            <ivy:retrieve pattern="${project.build.directory}/${ivy.module}-${ivy.revision}/[artifact].[ext]" conf="runtime" type="war"/>
+            <ivy:retrieve pattern="${project.build.directory}/${ivy.module}-${ivy.revision}/[artifact].[ext]" conf="runtime" type="ejb"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="package">
+        <sequential>
+            <ear destfile="${project.build.directory}/${ivy.module}-${ivy.revision}.ear"
+                 appxml="${project.resource.directory}/META-INF/application.xml"
+                 basedir="${project.build.directory}/${ivy.module}-${ivy.revision}">
+            </ear>
+        </sequential>
+    </macrodef>
+</antlib>

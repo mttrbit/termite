@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="com.mttrbit.termite.plugins.all" basedir="." xmlns:unless="ant:unless" xmlns:ivy="antlib:org.apache.ivy.ant">
+    <property name="ivy.home" value="${user.home}/.ivy2"/>
+    <property name="ivy.settings.file" value="${ivy.home}/ivysettings.xml"/>
+
+    <ivy:settings file="${ivy.settings.file}"/>
+
+    <target name="publish" description="publish all projects in the right order">
+        <ivy:buildlist reference="plugin-path">
+            <ivy:fileset dir="plugins">
+                <include name="*/**/build.xml" />
+            </ivy:fileset>
+        </ivy:buildlist>
+
+        <ivy:buildlist reference="termite-path">
+            <ivy:fileset dir="termite">
+                <include name="*/**/build.xml" />
+            </ivy:fileset>
+        </ivy:buildlist>
+        <subant antfile="build.xml" target="publish" buildpathref="plugin-path" />
+        <subant antfile="build.xml" target="publish" buildpathref="termite-path" />
+    </target>
+
+</project>

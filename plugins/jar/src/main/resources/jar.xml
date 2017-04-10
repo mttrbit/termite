@@ -1,0 +1,274 @@
+<?xml version="1.0"?>
+<antlib xmlns:if="ant:if" xmlns:unless="ant:unless" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:ac="antlib:net.sf.antcontrib">
+
+    <macrodef name="download-from-repo">
+        <attribute name="repo" default="${maven.repo.central}"/>
+        <attribute name="path-to-file"/>
+        <attribute name="destination"/>
+        <sequential>
+            <echo message="Downloading @{path-to-file}..."/>
+            <get src="@{repo}/@{path-to-file}" dest="@{destination}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="load-jar">
+        <attribute name="path"/>
+        <attribute name="dir" default="${ivy.home}"/>
+        <attribute name="resource"/>
+        <attribute name="uri"/>
+        <sequential>
+            <path id="@{path}">
+                <fileset dir="@{dir}" includes="*.jar"/>
+            </path>
+            <taskdef resource="@{resource}" uri="@{uri}" classpathref="@{path}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="validate-property">
+        <attribute name="name"/>
+        <sequential>
+            <fail message="@{name} is a required property"
+                  unless="@{name}"/>
+            <echo>Validated existence of property @{name}: $${@{name}} := ${@{name}}</echo>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="clean">
+        <sequential>
+            <delete dir="${project.build.directory}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="validate">
+        <sequential>
+            <available property="ivy.installed" value="true" file="${ivy.jar.file}" type="file"/>
+            <download-from-repo path-to-file="org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+                                destination="${ivy.jar.file}" unless:set="ivy.installed"/>
+
+            <available property="ant-contrib.installed" value="true" file="${ant-contrib.jar.file}" type="file"/>
+            <download-from-repo path-to-file="ant-contrib/ant-contrib/${ant-contrib.install.version}/ant-contrib-${ant-contrib.install.version}.jar"
+                                destination="${ant-contrib.jar.file}" unless:set="ant-contrib.installed"/>
+
+            <validate-property name="ant.project.name"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="initialize">
+        <sequential>
+            <load-jar path="ivy.lib.path" resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant"/>
+            <load-jar path="antcontrib.lib.path" resource="net/sf/antcontrib/antlib.xml" uri="antlib:net.sf.antcontrib"/>
+        </sequential>
+    </macrodef>
+
+
+    <macrodef name="doCompile">
+        <attribute name="destdir" default="${project.build.directory.src}"/>
+        <attribute name="includeant" default="false"/>
+        <attribute name="fork" default="true"/>
+        <attribute name="encoding" default="${java.encoding}"/>
+        <attribute name="target" default="${java.version.target}"/>
+        <attribute name="source" default="${java.version.source}"/>
+        <element name="whatToCompile" optional="no"/>
+        <sequential>
+            <javac  destdir="@{destdir}"
+                    target="@{target}"
+                    source="@{source}"
+                    includeAntRuntime="@{includeant}"
+                    nowarn="true"
+                    debug="true"
+                    optimize="true"
+                    deprecation="false"
+                    fork="@{fork}"
+                    encoding="@{encoding}"
+                    verbose="false">
+                <whatToCompile/>
+            </javac>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="fetch-dependencies">
+        <attribute name="conf"/>
+        <attribute name="pathid"/>
+        <attribute name="type" default="jar,war,ear,bundle"/>
+        <sequential>
+            <ivy:resolve type="@{type}" conf="@{conf}"/>
+            <ivy:report todir="${project.build.directory.ivy-reports}" graph="false"/>
+            <ivy:cachepath pathid="@{pathid}" conf="@{conf}" />
+        </sequential>
+    </macrodef>
+
+    <macrodef name="compile-resolve-dependencies">
+        <sequential>
+            <fetch-dependencies conf="default" pathid="project.classpath.default"/>
+            <fetch-dependencies conf="master" pathid="project.classpath.master"/>
+            <fetch-dependencies conf="compile" pathid="project.classpath.compile"/>
+            <fetch-dependencies conf="provided" pathid="project.classpath.provided"/>
+            <fetch-dependencies conf="runtime" pathid="project.classpath.runtime"/>
+            <fetch-dependencies conf="system" pathid="project.classpath.system"/>
+            <fetch-dependencies conf="sources" pathid="project.classpath.sources"/>
+            <fetch-dependencies conf="javadoc" pathid="project.classpath.javadoc"/>
+            <fetch-dependencies conf="optional" pathid="project.classpath.optional"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="compile-process-resources">
+        <sequential>
+            <available property="resources.exists" value="true" file="${project.resource.directory}" type="dir"/>
+            <copy includeemptydirs="false" todir="${project.build.directory.src}" if:set="resources.exists">
+                <fileset dir="${project.resource.directory}"/>
+            </copy>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="compile">
+        <sequential>
+            <available property="outputDirectory.src.exists" value="true" file="${project.build.directory.src}" type="dir"/>
+            <mkdir dir="${project.build.directory.src}" unless:set="outputDirectory.src.exists"/>
+            <doCompile destdir="${project.build.directory.src}">
+                <whatToCompile>
+                    <src path="${project.source.directory}"/>
+                    <classpath refid="project.classpath.compile"/>
+                    <classpath refid="project.classpath.provided"/>
+                </whatToCompile>
+            </doCompile>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="test-resolve-dependencies">
+        <sequential>
+            <fetch-dependencies conf="test" pathid="project.classpath.test"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="test-compile-process-resources">
+        <sequential>
+            <copy includeemptydirs="false" todir="${project.build.directory.tests}">
+                <fileset dir="${project.testResource.directory}"/>
+            </copy>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="test-compile">
+        <sequential>
+            <available property="outputDirectory.tests.exists" value="true" file="${project.build.directory.tests}" type="dir"/>
+            <mkdir dir="${project.build.directory.tests}" unless:set="outputDirectory.tests.exists"/>
+            <doCompile destdir="${project.build.directory.tests}">
+                <whatToCompile>
+                    <src path="${project.testSource.directory}"/>
+                    <classpath location="${project.build.directory.src}" />
+                    <classpath refid="project.classpath.test"/>
+                </whatToCompile>
+            </doCompile>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="publish-local-prepare">
+        <sequential>
+            <echo message="Publish project ${ant.project.name}" />
+            <ivy:deliver deliverpattern="${project.build.directory}/ivy.xml" pubrevision="${ivy.revision}" status="${ivy.status}"/>
+            <ivy:makepom ivyfile="${project.build.directory}/ivy.xml" pomfile="${project.build.directory}/${ivy.module}-${ivy.revision}.pom"/>
+            <ivy:resolve/>
+        </sequential>
+    </macrodef>
+    <macrodef name="publish-local-generate-version">
+        <sequential>
+            <echo message="publish-local-generate-version::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="publish-local">
+        <sequential>
+            <ivy:publish resolver="local"
+                         artifactspattern="${project.build.directory}/[artifact]-[revision](-[classifier]).[ext]"
+                         pubrevision="${ivy.revision}"
+                         status="${ivy.status}"
+                         overwrite="true"
+                         publishivy="true"
+            />
+        </sequential>
+    </macrodef>
+
+    <macrodef name="publish-shared-prepare">
+        <sequential>
+            <echo message="Publish project ${ant.project.name}" />
+            <ivy:deliver deliverpattern="${project.build.directory}/ivy.xml" pubrevision="${ivy.revision}" status="${ivy.status}"/>
+            <ivy:makepom ivyfile="${project.build.directory}/ivy.xml" pomfile="${project.build.directory}/${ivy.module}-${ivy.revision}.pom"/>
+            <ivy:resolve/>
+        </sequential>
+    </macrodef>
+    <macrodef name="publish-shared-generate-version">
+        <sequential>
+            <echo message="publish-local-generate-version::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="publish-shared">
+        <sequential>
+            <ivy:publish resolver="shared"
+                         artifactspattern="${project.build.directory}/[artifact]-[revision](-[classifier]).[ext]"
+                         pubrevision="${ivy.revision}"
+                         status="${ivy.status}"
+                         overwrite="true"
+                         publishivy="true"
+            />
+        </sequential>
+    </macrodef>
+
+    <macrodef name="release-prepare">
+        <sequential>
+            <echo message="Publish project ${ant.project.name}" />
+            <ivy:deliver deliverpattern="${project.build.directory}/ivy.xml" pubrevision="${ivy.revision}" status="${ivy.status}"/>
+            <ivy:makepom ivyfile="${project.build.directory}/ivy.xml" pomfile="${project.build.directory}/${ivy.module}-${ivy.revision}.pom"/>
+            <ivy:resolve/>
+        </sequential>
+    </macrodef>
+    <macrodef name="release-generate-version">
+        <sequential>
+            <echo message="release-generate-version::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="release">
+        <sequential>
+            <ivy:publish resolver="public"
+                         artifactspattern="${project.build.directory}/[artifact]-[revision](-[classifier]).[ext]"
+                         pubrevision="${ivy.revision}"
+                         status="${ivy.status}"
+                         overwrite="true"
+                         publishivy="false"
+            />
+        </sequential>
+    </macrodef>
+
+    <macrodef name="package-jar">
+        <sequential>
+            <available property="build.directory.src.exists" value="true" file="${project.build.directory.src}" type="dir"/>
+            <available property="build.directory.src-generated.exists" value="true" file="${project.build.directory.src-generated}" type="dir"/>
+            <mkdir dir="${project.build.directory.src}" unless:set="build.directory.src.exists"/>
+            <mkdir dir="${project.build.directory.src-generated}" unless:set="build.directory.src-generated.exists"/>
+            <jar destfile="${project.build.directory}/${ivy.module}-${ivy.revision}.jar"
+                 filesetmanifest="merge"
+                 compress="true"
+                 excludes="**/package.html">
+                <fileset dir="${project.build.directory.src}"/>
+                <fileset dir="${project.build.directory.src-generated}"/>
+            </jar>
+        </sequential>
+    </macrodef>
+    <macrodef name="package-sources">
+        <sequential>
+            <jar destfile = "${project.build.directory}/${ivy.module}-${ivy.revision}-sources.jar"
+                 basedir = "${project.source.directory}"
+                 includes = "**"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="package-javadoc">
+        <sequential/>
+    </macrodef>
+
+    <macrodef name="package">
+        <sequential>
+            <package-jar/>
+            <package-sources/>
+            <package-javadoc/>
+        </sequential>
+    </macrodef>
+</antlib>

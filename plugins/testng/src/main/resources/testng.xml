@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<antlib xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:unless="ant:unless">
+
+    <macrodef name="test">
+        <sequential>
+            <available property="testReports.directory.exists" value="true" file="${project.build.directory.tests-reports}" type="dir"/>
+            <mkdir dir="${project.build.directory.tests-reports}" unless:set="testReports.directory.exists"/>
+            <doBatchTestTestNG filesetDir="${project.build.directory.tests}" includeName="**/*Test.class"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="doBatchTestTestNG">
+        <attribute name="filesetDir"/>
+        <attribute name="includeName"/>
+        <sequential>
+            <doTestTestNG>
+                <whatToTestTestNG>
+                    <classfileset dir="@{filesetDir}" includes="@{includeName}" />
+                </whatToTestTestNG>
+            </doTestTestNG>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="doSingleTest">
+        <attribute name="class"/>
+        <attribute name="filesetDir" default="${project.build.directory.tests}"/>
+        <sequential>
+            <doTestTestNG>
+                <whatToTestTestNG>
+                    <classfileset dir="@{filesetDir}" includes="@{class}" />
+                </whatToTestTestNG>
+            </doTestTestNG>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="doTestTestNG">
+        <element name="whatToTestTestNG" optional="no"/>
+        <sequential>
+            <taskdef name="testng" classname="org.testng.TestNGAntTask">
+                <classpath refid="project.classpath.test"/>
+            </taskdef>
+            <testng classpathref="project.classpath.test"
+                    outputDir="${project.build.directory.tests-reports}"
+                    haltOnFailure="false">
+
+                <classpath location="${project.build.directory.src-generated}"/>
+                <classpath location="${project.build.directory.src}"/>
+                <classpath location="${project.build.directory.tests-generated}"/>
+                <classpath location="${project.build.directory.tests}"/>
+                <jvmarg value="-Demma.coverage.out.file=${project.build.directory.tests-reports}/metadata/coverage.emma"/>
+                <jvmarg value="-Demma.coverage.out.merge=true"/>
+                <whatToTestTestNG/>
+            </testng>
+        </sequential>
+    </macrodef>
+</antlib>

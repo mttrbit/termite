@@ -1,0 +1,235 @@
+<?xml version="1.0"?>
+<antlib>
+    <macrodef name="clean-pre">
+        <sequential>
+            <echo message="clean-pre::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="clean">
+        <sequential>
+            <echo message="clean::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="clean-post">
+        <sequential>
+            <echo message="clean-post::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+
+
+    <macrodef name="validate">
+        <sequential>
+            <echo message="validate::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+
+
+    <macrodef name="initialize">
+        <sequential>
+            <echo message="::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+
+
+    <macrodef name="compile-resolve-dependencies">
+        <sequential>
+            <echo message="compile-resolve-dependencies::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="compile-generate-resources">
+        <sequential>
+            <echo message="compile-generate-resources::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="compile-process-resources">
+        <sequential>
+            <echo message="compile-process-resources::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="compile-generate-sources">
+        <sequential>
+            <echo message="compile-generate-sources::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="compile-process-sources">
+        <sequential>
+            <echo message="compile-process-sources::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="compile-provision">
+        <sequential>
+            <echo message="compile-provision::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="compile">
+        <sequential>
+            <echo message="compile::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="compile-process-classes">
+        <sequential>
+            <echo message="compile-process-classes::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+
+
+    <macrodef name="test-resolve-dependencies">
+        <sequential>
+            <echo message="test-resolve-dependencies::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="test-generate-resources">
+        <sequential>
+            <echo message="test-generate-resources::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="test-process-resources">
+        <sequential>
+            <echo message="test-process-resources::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="test-generate-sources">
+        <sequential>
+            <echo message="test-generate-sources::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="test-process-sources">
+        <sequential>
+            <echo message="test-process-sources::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="test-provision">
+        <sequential>
+            <echo message="test-provision::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="test-compile">
+        <sequential>
+            <echo message="compile::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="test-process-classes">
+        <sequential>
+            <echo message="compile-process-classes::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="test">
+        <sequential>
+            <echo message="test::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+
+
+    <macrodef name="package-prepare">
+        <sequential>
+            <echo message="package-prepare::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="package">
+        <sequential>
+            <echo message="package::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+
+
+    <macrodef name="it-pre">
+        <sequential>
+            <echo message="it-pre::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="it">
+        <sequential>
+            <echo message="it::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="it-post">
+        <sequential>
+            <echo message="it-post::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+
+
+    <macrodef name="site-pre">
+        <sequential>
+            <echo message="site-pre::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="">
+        <sequential>
+            <echo message="site-post::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="site">
+        <sequential>
+            <echo message="site::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="site-deploy">
+        <sequential>
+            <echo message="site-deploy::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="verify">
+        <sequential>
+            <echo message="verify::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+
+
+    <macrodef name="publish-local-prepare">
+        <sequential>
+            <echo message="publish-local-prepare::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="publish-local-generate-version">
+        <sequential>
+            <echo message="publish-local-generate-version::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="publish-local">
+        <sequential>
+            <echo message="publish-local::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+
+
+    <macrodef name="publish-shared-prepare">
+        <sequential>
+            <echo message="publish-shared-prepare::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="publish-shared-generate-version">
+        <sequential>
+            <echo message="publish-shared-generate-version::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="publish-shared">
+        <sequential>
+            <echo message="publish-shared::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+
+
+    <macrodef name="release-prepare">
+        <sequential>
+            <echo message="release-prepare::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="release-generate-version">
+        <sequential>
+            <echo message="release-generate-version::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="release">
+        <sequential>
+            <echo message="release::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="report">
+        <sequential>
+            <echo message="report::nothing to do" level="debug"/>
+        </sequential>
+    </macrodef>
+</antlib>
