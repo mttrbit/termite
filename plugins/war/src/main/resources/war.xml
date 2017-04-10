@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<antlib  xmlns:unless="ant:unless" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <macrodef name="package-prepare">
+        <sequential>
+            <mkdir dir="${project.build.directory}/${ivy.module}-${ivy.revision}"/>
+            <copydir src="${project.web.directory}"
+                     dest="${project.build.directory}/${ivy.module}-${ivy.revision}"
+            />
+            <mkdir dir="${project.build.directory}/${ivy.module}-${ivy.revision}/META-INF"/>
+            <mkdir dir="${project.build.directory}/${ivy.module}-${ivy.revision}/WEB-INF/lib"/>
+            <mkdir dir="${project.build.directory}/${ivy.module}-${ivy.revision}/WEB-INF/classes"/>
+            <!-- if build src exists -->
+            <copydir src="${project.build.directory.src}"
+                     dest="${project.build.directory}/${ivy.module}-${ivy.revision}/WEB-INF/classes"
+            />
+            <ivy:retrieve pattern="${project.build.directory}/${ivy.module}-${ivy.revision}/WEB-INF/lib/[artifact].[ext]" conf="runtime"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="package-sources">
+        <sequential>
+            <jar destfile = "${project.build.directory}/${ivy.module}-${ivy.revision}-sources.jar"
+                 basedir = "${project.source.directory}"
+                 includes = "**"/>
+        </sequential>
+    </macrodef>
+    <macrodef name="package-war">
+        <sequential>
+            <war destfile="${project.build.directory}/${ivy.module}-${ivy.revision}.war" webxml="${project.build.directory}/${ivy.module}-${ivy.revision}/WEB-INF/web.xml">
+                <webinf dir="${project.build.directory}/${ivy.module}-${ivy.revision}/WEB-INF" />
+                <lib dir="${project.build.directory}/${ivy.module}-${ivy.revision}/WEB-INF/lib" />
+            </war>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="package">
+        <sequential>
+            <package-war/>
+            <package-sources/>
+        </sequential>
+    </macrodef>
+</antlib>

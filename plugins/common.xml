@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="com.mttrbit.termite.plugins" basedir="." xmlns:unless="ant:unless" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <property name="ivy.home" value="${user.home}/.ivy2"/>
+    <property name="ivy.settings.file" value="${ivy.home}/ivysettings.xml"/>
+    <property name="ivy.install.version" value="2.4.0"/>
+    <property name="ivy.jar.file" value="${ivy.home}/ivy-${ivy.install.version}.jar"/>
+
+    <property name="ant-contrib.install.version" value="1.0b3"/>
+    <property name="ant-contrib.jar.file" value="${ivy.home}/ant-contrib-${ant-contrib.install.version}.jar"/>
+
+    <property name="maven.repo.central" value="http://repo1.maven.org/maven2"/>
+    <property name="maven.repo.local" value="${user.home}/.m2/repository"/>
+
+    <macrodef name="download-from-repo">
+        <attribute name="repo" default="${maven.repo.central}"/>
+        <attribute name="path-to-file"/>
+        <attribute name="destination"/>
+        <sequential>
+            <echo message="Downloading @{path-to-file}..."/>
+            <get src="@{repo}/@{path-to-file}" dest="@{destination}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="load-jar">
+        <attribute name="path"/>
+        <attribute name="dir" default="${ivy.home}"/>
+        <attribute name="resource"/>
+        <attribute name="uri"/>
+        <sequential>
+            <path id="@{path}">
+                <fileset dir="@{dir}" includes="*.jar"/>
+            </path>
+            <taskdef resource="@{resource}" uri="@{uri}" classpathref="@{path}"/>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="compile-process-resources">
+        <sequential>
+            <copy file="ivy.xml" todir="${project.build.directory}"/>
+            <copy includeemptydirs="false" todir="${project.build.directory.src}">
+                <fileset dir="${project.resource.directory}"/>
+            </copy>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="package">
+        <sequential>
+            <jar destfile="${project.build.directory}/${module.name}.jar" filesetmanifest="merge" compress="true" excludes="**/package.html">
+                <fileset dir="${project.build.directory.src}"/>
+            </jar>
+        </sequential>
+    </macrodef>
+
+    <target name="-init">
+        <available property="ivy.installed" value="true" file="${ivy.jar.file}" type="file"/>
+        <download-from-repo path-to-file="org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+                            destination="${ivy.jar.file}" unless:set="ivy.installed"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${project.build.directory}"/>
+    </target>
+
+    <target name="build" depends="-init,clean">
+        <compile-process-resources/>
+    </target>
+
+    <target name="package" depends="build">
+        <package/>
+    </target>
+
+    <target name="publish" depends="package" description="Publishes the JAR and XML files from check in directory to local module repository.">
+        <echo message="Publish project ${ant.project.name}" />
+        <ivy:retrieve/>
+        <ivy:deliver deliverpattern="${project.build.directory}/ivy.xml" module="${module.name}" organisation="${organisation.name}" pubrevision="${version}" revision="${version}"/>
+        <ivy:makepom ivyfile="${project.build.directory}/ivy.xml" pomfile="${project.build.directory}/${module.name}.pom"/>
+        <ivy:publish resolver="public" module="${module.name}" organisation="${organisation.name}" revision="${version}" update="true" overwrite="true" publishivy="false">
+            <ivy:artifacts pattern="${project.build.directory}/[artifact].[ext]" />
+        </ivy:publish>
+        <ivy:publish resolver="shared" module="${module.name}" organisation="${organisation.name}" revision="${version}" update="true" overwrite="true" publishivy="false">
+            <ivy:artifacts pattern="${project.build.directory}/[artifact].[ext]" />
+        </ivy:publish>
+    </target>
+</project>

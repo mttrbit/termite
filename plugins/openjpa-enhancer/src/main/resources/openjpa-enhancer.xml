@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<antlib>
+    <macrodef name="compile-process-classes">
+        <sequential>
+                <java classname="org.apache.openjpa.enhance.PCEnhancer" fork="true" failonerror="true">
+                    <arg value="-p"/>
+                    <classpath refid="project.classpath.compile"/>
+                    <arg value="${project.build.directory.src}/META-INF/persistence.xml"/>
+                    <classpath>
+                        <pathelement path="${project.build.directory.src}"/>
+                        <pathelement location="${project.build.directory.src}/META-INF/"/>
+                    </classpath>
+                </java>
+        </sequential>
+    </macrodef>
+</antlib>

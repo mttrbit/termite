@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="api" basedir="." xmlns:if="ant:if">
+    <property name="ivy.home" value="${user.home}/.ivy2"/>
+    <property name="ivy.settings.file" value="${ivy.home}/ivysettings.xml"/>
+    <property name="ivy.install.version" value="2.4.0"/>
+    <property name="ivy.jar.file" value="${ivy.home}/ivy-${ivy.install.version}.jar"/>
+
+    <property name="ant-contrib.install.version" value="1.0b3"/>
+    <property name="ant-contrib.jar.file" value="${ivy.home}/ant-contrib-${ant-contrib.install.version}.jar"/>
+
+    <property name="maven.repo.central" value="http://repo1.maven.org/maven2"/>
+    <property name="maven.repo.local" value="${user.home}/.m2/repository"/>
+
+    <property name="termite.home" value="${user.home}/.termite"/>
+    <property name="termite.lib.dir" value="${termite.home}/lib"/>
+    <property name="termite.config.file" value=".termite.properties" />
+
+    <property file="${project.dir}/${termite.config.file}" />
+    <property file="${termite.home}/${termite.config.file}" />
+
+    <property name="termite.plugin.credentials.file" value="plugin.credentials.properties"/>
+    <property name="termite.plugin.host" value=""/>
+    <property name="termite.plugin.snapshots" value="${termite.plugin.host}/repository/maven-snapshots"/>
+
+
+    <macrodef name="load-plugin">
+        <attribute name="name"/>
+        <attribute name="repo" default="${termite.lib.dir}"/>
+        <attribute name="version" default="1.0.0-SNAPSHOT"/>
+        <attribute name="credentials" default="${termite.home}/${termite.plugin.credentials.file}"/>
+        <sequential>
+            <property file="@{credentials}" prefix="plugin"/>
+            <property name="host" value="${termite.plugin.snapshots}"/>
+            <property name="path" value="com/mttrbit/termite/plugins"/>
+            <get src="${host}/${path}/plugin-@{name}/@{version}/plugin-@{name}-@{version}.jar"
+                 dest="@{repo}/plugin-@{name}.jar"
+                 username="${plugin.username}"
+                 password="${plugin.password}"
+            />
+            <available property="properties.exists" value="true" resource="@{name}.properties">
+                <classpath>
+                    <pathelement location="@{repo}/plugin-@{name}.jar" />
+                </classpath>
+            </available>
+            <property url="jar:file:@{repo}/plugin-@{name}.jar!/@{name}.properties" if:set="properties.exists"/>
+            <taskdef resource="@{name}.xml" classpath="/@{repo}/plugin-@{name}.jar"/>
+        </sequential>
+    </macrodef>
+
+
+    <load-plugin name="api"/>
+
+    <target name="clean:pre" description="execute processes needed prior to the actual project cleaning">
+        <clean-pre/>
+    </target>
+    <target name="clean:clean" description="delete any artifacts from previous builds">
+        <clean/>
+    </target>
+    <target name="clean:post" description="execute processes needed to finalize the project cleaning">
+        <clean-post/>
+    </target>
+    <target name="clean"
+            description="delete any artifacts from previous builds"
+            depends="clean:pre,clean:clean,clean:post"/>
+
+    <target name="validate" description="validate the project is correct and all necessary information is available">
+        <validate/>
+    </target>
+
+    <target name="initialize" description="initialize build state, e.g. set properties or create directories">
+        <initialize/>
+    </target>
+
+    <target name="-compile:resolve-dependencies" description="resolve dependencies and set classpaths">
+        <compile-resolve-dependencies/>
+    </target>
+
+    <target name="compile:generate-resources" description="generate resources for inclusion in the package" depends="initialize,-compile:resolve-dependencies">
+        <compile-generate-resources/>
+    </target>
+    <target name="compile:process-resources"
+            depends="initialize,-compile:resolve-dependencies"
+            description="copy and process the resources into the destination directory, ready for packaging">
+        <compile-process-resources/>
+    </target>
+    <target name="compile:generate-sources" description="generate any source code for inclusion in compilation" depends="initialize,-compile:resolve-dependencies">
+        <compile-generate-sources/>
+    </target>
+    <target name="compile:process-sources" description="process the source code, for example to filter any values" depends="initialize,-compile:resolve-dependencies">
+        <compile-process-sources/>
+    </target>
+    <target name="compile:compile" description="compile the source code of the project" depends="initialize,-compile:resolve-dependencies">
+        <compile/>
+    </target>
+    <target name="compile:process-classes"
+            depends="initialize,-compile:resolve-dependencies"
+            description="post-process the generated files from compilation, for example to do bytecode enhancement on Java classes">
+        <compile-process-classes/>
+    </target>
+    <target name="compile:provision" description="supply provision required by this project" depends="initialize,-compile:resolve-dependencies">
+        <compile-provision/>
+    </target>
+    <target name="compile"
+            description="compile the source code of the project"
+            depends="
+                compile:generate-sources,
+                compile:process-sources,
+                compile:generate-resources,
+                compile:process-resources,
+                compile:compile,
+                compile:process-classes,
+                compile:provision"/>
+
+    <target name="-test:resolve-dependencies" description="resolve dependencies and set classpaths">
+        <test-resolve-dependencies/>
+    </target>
+    <target name="test:compile" description="compile the test source code into the test destination directory" depends="initialize,-test:resolve-dependencies">
+        <test-compile/>
+    </target>
+    <target name="test:process-classes" description="process the test source code, for example to filter any values" depends="initialize,-test:resolve-dependencies">
+        <test-process-classes/>
+    </target>
+    <target name="test:generate-resources" description="generate any resources for inclusion in test compilation" depends="initialize,-test:resolve-dependencies">
+        <test-generate-resources/>
+    </target>
+    <target name="test:generate-sources" description="generate any source code for inclusion in test compilation" depends="initialize,-test:resolve-dependencies">
+        <test-generate-sources/>
+    </target>
+    <target name="test:process-resources"
+            depends="initialize,-test:resolve-dependencies"
+            description="copy and process the resources into the test destination directory">
+        <test-process-resources/>
+    </target>
+    <target name="test:process-sources" description="process the test source code, for example to filter any values" depends="initialize,-test:resolve-dependencies">
+        <test-process-sources/>
+    </target>
+    <target name="test:provision" description="supply provision required to test this project" depends="initialize,-test:resolve-dependencies">
+        <test-provision/>
+    </target>
+    <target name="test:test"
+            depends="initialize,-test:resolve-dependencies"
+            description="run tests using a suitable unit testing framework. These tests should not require the code be packaged or deployed">
+        <test/>
+    </target>
+    <target name="test"
+            description="run tests using a suitable unit testing framework. These tests should not require the code be packaged or deployed"
+            depends="
+                compile,
+                test:generate-resources,
+                test:generate-sources,
+                test:process-resources,
+                test:process-sources,
+                test:provision,
+                test:compile,
+                test:process-classes,
+                test:test"/>
+
+    <target name="package:prepare"
+            depends="initialize"
+            description="perform any operations necessary to prepare a package before the actual packaging. This often results in an unpacked, processed version of the package">
+        <package-prepare/>
+    </target>
+    <target name="package:package"
+            depends="initialize"
+            description="take the compiled code and package it in its distributable format, such as a JAR">
+        <package/>
+    </target>
+    <target name="package"
+            description="take the compiled code and package it in its distributable format, such as a JAR"
+            depends="
+                compile,
+                package:prepare,
+                package:package"/>
+
+    <target name="it:pre"
+            depends="initialize"
+            description="perform actions required before integration tests are executed. This may involve things such as setting up the required environment">
+        <it-pre/>
+    </target>
+    <target name="it:it"
+            depends="initialize"
+            description="process and deploy the package if necessary into an environment where integration tests can be run">
+        <it/>
+    </target>
+    <target name="it:post"
+            depends="initialize"
+            description="perform actions required after integration tests have been executed. This may including cleaning up the environment">
+        <it-post/>
+    </target>
+    <target name="it" depends="it:pre,it:it,it:post" description="run integration tests"/>
+
+    <target name="site:pre" description="execute processes needed prior to the actual project site generation" depends="initialize">
+        <site-pre/>
+    </target>
+    <target name="site:site" description="generate the project's site documentation" depends="initialize">
+        <site/>
+    </target>
+    <target name="site:post"
+            depends="initialize"
+            description="execute processes needed to finalize the site generation, and to prepare for site deployment">
+        <site-post/>
+    </target>
+    <target name="site:deploy" description="deploy the generated site documentation to the specified web server" depends="initialize">
+        <site-deploy/>
+    </target>
+    <target name="site" depends="site:pre,site:site,site:post" description="generate documentation"/>
+
+    <target name="verify" depends="package,test,it"
+            description="run any checks to verify the package is valid and meets quality criteria">
+        <verify/>
+    </target>
+
+    <target name="publish:local:prepare" description="prepare a publish for a local repository" depends="initialize">
+        <publish-local-prepare/>
+    </target>
+    <target name="publish:local:generate-version" description="generate a local version number" depends="initialize">
+        <publish-local-generate-version/>
+    </target>
+    <target name="publish:local:publish"
+            description="publish the package into the local repository, for use as a dependency in other projects locally">
+        <publish-local/>
+    </target>
+    <target name="publish:local"
+            depends="package,publish:local:prepare,publish:local:generate-version,publish:local:publish"
+            description=""/>
+
+    <target name="publish:shared:prepare" description="prepare a publish for a shared repository (snapshot)" depends="initialize">
+        <publish-shared-prepare/>
+    </target>
+    <target name="publish:shared:generate-version" description="generate a version number for shared publication" depends="initialize">
+        <publish-shared-generate-version/>
+    </target>
+    <target name="publish:shared:publish"
+            depends="initialize"
+            description="done in an integration environment, copies the final package to the remote repository for sharing with other developers and projects">
+        <publish-shared/>
+    </target>
+    <target name="publish:shared"
+            depends="package,publish:shared:prepare,publish:shared:generate-version,publish:shared:publish"
+            description=""/>
+
+    <target name="release:prepare" description="prepare a release" depends="initialize">
+        <release-prepare/>
+    </target>
+    <target name="release:generate-version" description="generate a version number for a release" depends="initialize">
+        <release-generate-version/>
+    </target>
+    <target name="release:release"
+            depends="initialize"
+            description="done in an integration or release environment, copies the final package to the remote repository for sharing with other developers and projects">
+        <release/>
+    </target>
+    <target name="release" depends="verify,publish:shared,release:prepare,release:generate-version,release:release"
+            description="done in an integration or release environment, copies the final package to the remote repository for sharing with other developers and projects"/>
+
+    <target name="report" description="generate report" depends="initialize">
+        <report/>
+    </target>
+
+</project>

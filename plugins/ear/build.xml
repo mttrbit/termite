@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="com.mttrbit.termite.plugins.ear" basedir="." xmlns:unless="ant:unless" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+    <property file="${basedir}/build.properties"/>
+    <property file="${plugins.dir}/common.properties" />
+    <import file="${plugins.dir}/common.xml"/>
+
+</project>
