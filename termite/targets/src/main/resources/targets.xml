@@ -27,12 +27,12 @@
         <attribute name="name"/>
         <attribute name="repo" default="${termite.lib.dir}"/>
         <attribute name="version" default="1.0.0-SNAPSHOT"/>
+        <attribute name="host" default="${termite.plugin.snapshots}T"/>
+        <attribute name="path" default="com/mttrbit/termite/plugins"/>
         <attribute name="credentials" default="${termite.home}/${termite.plugin.credentials.file}"/>
         <sequential>
             <property file="@{credentials}" prefix="plugin"/>
-            <property name="host" value="${termite.plugin.snapshots}"/>
-            <property name="path" value="com/mttrbit/termite/plugins"/>
-            <get src="${host}/${path}/plugin-@{name}/@{version}/plugin-@{name}-@{version}.jar"
+            <get src="@{host}/@{path}/plugin-@{name}/@{version}/plugin-@{name}-@{version}.jar"
                  dest="@{repo}/plugin-@{name}.jar"
                  username="${plugin.username}"
                  password="${plugin.password}"
@@ -51,12 +51,14 @@
         <attribute name="name"/>
         <attribute name="repo" default="${termite.lib.dir}"/>
         <attribute name="version" default="1.0.0-SNAPSHOT"/>
+        <attribute name="host" default="${termite.plugin.snapshots}T"/>
+        <attribute name="path" default="com/mttrbit/termite"/>
         <attribute name="credentials" default="${termite.home}/${termite.plugin.credentials.file}"/>
         <sequential>
             <property file="@{credentials}" prefix="plugin"/>
             <property name="host" value="${termite.plugin.snapshots}"/>
             <property name="path" value="com/mttrbit/termite"/>
-            <get src="${host}/${path}/@{name}/@{version}/@{name}-@{version}.jar"
+            <get src="@{host}/@{path}/@{name}/@{version}/@{name}-@{version}.jar"
                  dest="@{repo}/@{name}.jar"
                  username="${plugin.username}"
                  password="${plugin.password}"
