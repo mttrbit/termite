@@ -68,7 +68,11 @@
                     <pathelement location="@{repo}/@{name}.jar" />
                 </classpath>
             </available>
-            <property url="jar:file:@{repo}/@{name}.jar!/@{name}.properties" if:set="properties.exists"/>
+            <path id="load.lib.url">
+                <pathelement path="@{repo}" />
+            </path>
+            <pathconvert property="linux.load.lib.url" refid="load.lib.url" dirsep="/" />
+            <property url="jar:file:${linux.load.lib.url}/@{name}.jar!/@{name}.properties" if:set="properties.exists"/>
             <taskdef resource="@{name}.xml" classpath="/@{repo}/@{name}.jar"/>
         </sequential>
     </macrodef>
