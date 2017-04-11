@@ -47,8 +47,32 @@
         </sequential>
     </macrodef>
 
+    <macrodef name="load-lib">
+        <attribute name="name"/>
+        <attribute name="repo" default="${termite.lib.dir}"/>
+        <attribute name="version" default="1.0.0-SNAPSHOT"/>
+        <attribute name="credentials" default="${termite.home}/${termite.plugin.credentials.file}"/>
+        <sequential>
+            <property file="@{credentials}" prefix="plugin"/>
+            <property name="host" value="${termite.plugin.snapshots}"/>
+            <property name="path" value="com/mttrbit/termite"/>
+            <get src="${host}/${path}/@{name}/@{version}/@{name}-@{version}.jar"
+                 dest="@{repo}/@{name}.jar"
+                 username="${plugin.username}"
+                 password="${plugin.password}"
+            />
+            <available property="properties.exists" value="true" resource="@{name}.properties">
+                <classpath>
+                    <pathelement location="@{repo}/@{name}.jar" />
+                </classpath>
+            </available>
+            <property url="jar:file:@{repo}/@{name}.jar!/@{name}.properties" if:set="properties.exists"/>
+            <taskdef resource="@{name}.xml" classpath="/@{repo}/@{name}.jar"/>
+        </sequential>
+    </macrodef>
 
-    <load-plugin name="api"/>
+
+    <load-lib name="api"/>
 
     <target name="clean:pre" description="execute processes needed prior to the actual project cleaning">
         <clean-pre/>

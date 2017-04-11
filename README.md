@@ -7,6 +7,8 @@ Defines a standardized build workflow in terms of ant targets. These targets are
 - Fully automated
 
 ## Install
+${host}/${repo}/com/mttrbit/termite/targets/1.0.0-SNAPSHOT/targets-1.0.0-SNAPSHOT.jar
+
 Your project contains both an ivy.xml file and a module.ant files similar to the ones listed below. Within the directory
 of the project you execute on cli:
 ```
