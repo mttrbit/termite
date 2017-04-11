@@ -89,16 +89,15 @@ This file defines the starting point for the build workflow.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="mttrbit-termite-example" default="termite:init" basedir="." xmlns:unless="ant:unless" xmlns:if="ant:if">
+<project name="pdsm-jpf-ant-example" default="package" basedir="." xmlns:unless="ant:unless" xmlns:if="ant:if">
     <import>
-        <javaresource name="api.xml">
+        <javaresource name="targets.xml">
             <classpath location="${user.home}/.termite/termite.jar"/>
         </javaresource>
     </import>
 
-    <!-- loads three plugins: java with testng -->
-    <load-plugin name="java" if:set="dir.exists"/>
-    <load-plugin name="testng" if:set="dir.exists"/>
+    <load-plugin name="jar"/>
+    <load-plugin name="testng"/>
 </project>
 ```
 
